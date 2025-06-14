@@ -47,7 +47,7 @@ const MainLayout = (is) => {
   const [isSidebar, setIsSidebar] = useState(true);
   return (
     <>
-      <Sidebar />
+      <Sidebar isSidebar={isSidebar} />
       <main className="content">
         <Topbar setIsSidebar={setIsSidebar} />
         <Routes>
