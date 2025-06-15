@@ -32,6 +32,7 @@ const Dashboard = () => {
               fontWeight: "bold",
               padding: "10px 20px",
             }}
+            onClick={() => console.log(console.log(localStorage.getItem("accessToken")))}
           >
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Download Reports

@@ -20,7 +20,6 @@ import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   const [theme, colorMode] = useMode();
-  // const [isSidebar, setIsSidebar] = useState(true);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -28,7 +27,6 @@ function App() {
         <CssBaseline />
         <Routes>
           <Route path="/login" element={<Login />} />
-
           <Route
             path="/*"
             element={
@@ -43,10 +41,10 @@ function App() {
   );
 }
 
-const MainLayout = (is) => {
+const MainLayout = () => {
   const [isSidebar, setIsSidebar] = useState(true);
   return (
-    <>
+    <div className="app">
       <Sidebar isSidebar={isSidebar} />
       <main className="content">
         <Topbar setIsSidebar={setIsSidebar} />
@@ -65,7 +63,7 @@ const MainLayout = (is) => {
           <Route path="/geography" element={<Geography />} />
         </Routes>
       </main>
-    </>
+    </div>
   );
 };
 
