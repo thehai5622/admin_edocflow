@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import CryptoJS from 'crypto-js';
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../features/auth/authSlice";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -16,8 +20,9 @@ const Login = () => {
         password: CryptoJS.MD5(password).toString(),
         fcm_token: null
       });
-      console.log(res);
+      const userData = res.data.data;
       localStorage.setItem("accessToken", res.data.data.access_token);
+      dispatch(loginSuccess(userData));
       navigate("/dashboard");
     } catch (err) {
       if (err.response.data) {
