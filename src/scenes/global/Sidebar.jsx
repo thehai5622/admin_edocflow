@@ -112,7 +112,7 @@ const Sidebar = () => {
                   {user.name}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  VP Fancy Admin
+                  {user.issuing_authority.name}
                 </Typography>
               </Box>
             </Box>
