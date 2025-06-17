@@ -22,6 +22,7 @@ const Login = () => {
       });
       const userData = res.data.data;
       localStorage.setItem("accessToken", res.data.data.access_token);
+      localStorage.setItem("refreshToken", res.data.data.refresh_token);
       dispatch(loginSuccess(userData));
       navigate("/dashboard");
     } catch (err) {
