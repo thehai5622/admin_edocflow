@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import axios from "axios";
 import { loginSuccess, logout } from "../features/auth/authSlice";
+import api from "../service/apiService";
 
 const PrivateRoute = ({ children }) => {
   const dispatch = useDispatch();
@@ -17,17 +17,16 @@ const PrivateRoute = ({ children }) => {
       return;
     }
 
-    axios
-      .get("http://localhost:3210/v1/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("v1/user/me")
       .then((res) => {
         dispatch(loginSuccess(res.data.data));
         setIsAuthenticated(true);
       })
       .catch((err) => {
-        console.warn("Token không hợp lệ hoặc hết hạn:", err);
+        console.warn(err);
         localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         dispatch(logout());
         setIsAuthenticated(false);
       })

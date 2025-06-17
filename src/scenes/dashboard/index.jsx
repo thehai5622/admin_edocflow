@@ -12,6 +12,7 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
+import api from "../../service/apiService";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -32,7 +33,14 @@ const Dashboard = () => {
               fontWeight: "bold",
               padding: "10px 20px",
             }}
-            onClick={() => console.log(console.log(localStorage.getItem("accessToken")))}
+            onClick={async () => {
+              try {
+                const res = await api.get("v1/user/me");
+                console.log("Thông tin người dùng:", res.data.data);
+              } catch (err) {
+                console.error("Lỗi:", err);
+              }
+            }}
           >
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Download Reports
