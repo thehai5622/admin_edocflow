@@ -98,19 +98,36 @@ const Users = () => {
       renderCell: (params) => {
         const isActive = params.row.status === 1;
         return (
-          <button
-            // onClick={() => handleActionClick(params.row)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "4px",
-              border: "none",
-              cursor: "pointer",
-              color: "white",
-              backgroundColor: isActive ? "#d32f2f" : "#2e7d32",
-            }}
-          >
-            {isActive ? "Khóa" : "Cấp tài khoản"}
-          </button>
+          <>
+            <button
+              // onClick={() => handleActionClick(params.row)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "4px",
+                border: "none",
+                cursor: "pointer",
+                color: "white",
+                backgroundColor: isActive ? "#d32f2f" : "#2e7d32",
+              }}
+            >
+              {isActive ? "Khóa" : "Cấp tài khoản"}
+            </button>
+            {params.row.username && (
+              <button
+                // onClick={() => handleActionClick(params.row)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "4px",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "white",
+                  backgroundColor: colors.greenAccent[500],
+                }}
+              >
+                Cấp tài khoản
+              </button>
+            )}
+          </>
         );
       },
     },
