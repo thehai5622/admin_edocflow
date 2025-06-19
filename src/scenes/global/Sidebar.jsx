@@ -125,6 +125,11 @@ const Sidebar = () => {
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item title="Dashboard" to="/dashboard" icon={<HomeOutlinedIcon />} />
+            <Item
+              title="Cán bộ"
+              to="/users"
+              icon={<PeopleOutlinedIcon />}
+            />
 
             <Typography
               variant="h6"
