@@ -57,6 +57,15 @@ const Users = () => {
 
   const columns = [
     {
+      field: "stt",
+      headerName: "STT",
+      width: 80,
+      valueGetter: (params) =>
+        (pagination.page - 1) * pagination.limit +
+        params.api.getRowIndex(params.id) +
+        1,
+    },
+    {
       field: "name",
       headerName: "Tên",
       flex: 1,
@@ -64,18 +73,46 @@ const Users = () => {
     },
     { field: "username", headerName: "Tên đăng nhập", flex: 1 },
     { field: "phone", headerName: "Số điện thoại", flex: 1 },
-    { field: "email", headerName: "Email", flex: 1 },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1,
+      valueGetter: (params) => params.row.email || "--",
+    },
     {
       field: "permission",
       headerName: "Quyền",
       flex: 1,
-      valueGetter: (params) => params.row.permission?.name || "",
+      valueGetter: (params) => params.row.permission?.name || "--",
     },
     {
       field: "issuing_authority",
       headerName: "Cơ quan cấp",
       flex: 1,
-      valueGetter: (params) => params.row.issuing_authority?.name || "",
+      valueGetter: (params) => params.row.issuing_authority?.name || "--",
+    },
+    {
+      field: "actions",
+      headerName: "Thao tác",
+      flex: 1,
+      renderCell: (params) => {
+        const isActive = params.row.status === 1;
+        return (
+          <button
+            // onClick={() => handleActionClick(params.row)}
+            style={{
+              padding: "6px 12px",
+              borderRadius: "4px",
+              border: "none",
+              cursor: "pointer",
+              color: "white",
+              backgroundColor: isActive ? "#d32f2f" : "#2e7d32",
+            }}
+          >
+            {isActive ? "Khóa" : "Cấp tài khoản"}
+          </button>
+        );
+      },
     },
   ];
 
