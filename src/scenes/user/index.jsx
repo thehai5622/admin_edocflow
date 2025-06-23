@@ -112,7 +112,7 @@ const Users = () => {
             >
               {isActive ? "Khóa" : "Cấp tài khoản"}
             </button>
-            {params.row.username && (
+            {!params.row.username && (
               <button
                 // onClick={() => handleActionClick(params.row)}
                 style={{

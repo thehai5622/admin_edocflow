@@ -125,59 +125,59 @@ const Sidebar = () => {
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item title="Dashboard" to="/dashboard" icon={<HomeOutlinedIcon />} />
+
+            <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Nhân sự
+            </Typography>
             <Item
               title="Cán bộ"
               to="/users"
               icon={<PeopleOutlinedIcon />}
             />
-
-            <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Data
-            </Typography>
             <Item
-              title="Manage Team"
+              title="Cơ quan ban hành"
               to="/team"
               icon={<PeopleOutlinedIcon />}
             />
             <Item
-              title="Contacts Information"
+              title="Phòng ban"
               to="/contacts"
               icon={<ContactsOutlinedIcon />}
             />
-            <Item
+            {/* <Item
               title="Invoices Balances"
               to="/invoices"
               icon={<ReceiptOutlinedIcon />}
-            />
+            /> */}
 
             <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Pages
+              Danh mục
             </Typography>
-            <Item
+            {/* <Item
               title="Profile Form"
               to="/form"
               icon={<PersonOutlinedIcon />}
-            />
+            /> */}
             <Item
-              title="Calendar"
+              title="Lĩnh vực"
               to="/calendar"
               icon={<CalendarTodayOutlinedIcon />}
             />
             <Item
-              title="FAQ Page"
+              title="Loại file"
               to="/faq"
               icon={<HelpOutlineOutlinedIcon />}
             />
 
-            <Typography
+            {/* <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
@@ -199,7 +199,7 @@ const Sidebar = () => {
               title="Geography Chart"
               to="/geography"
               icon={<MapOutlinedIcon />}
-            />
+            /> */}
           </Box>
         </Menu>
       </ProSidebar>
