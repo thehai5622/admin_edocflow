@@ -9,24 +9,17 @@ import { useLocation } from "react-router-dom";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import PersonIcon from "@mui/icons-material/Person";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 
 const Item = ({ title, to, icon }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const location = useLocation();
   const isActive =
-    to === "/"
-      ? location.pathname === "/"
-      : location.pathname.startsWith(to);
+    to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
   return (
     <MenuItem
       active={isActive}
@@ -124,7 +117,11 @@ const Sidebar = () => {
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            <Item title="Dashboard" to="/dashboard" icon={<HomeOutlinedIcon />} />
+            <Item
+              title="Dashboard"
+              to="/dashboard"
+              icon={<HomeOutlinedIcon />}
+            />
 
             <Typography
               variant="h6"
@@ -133,11 +130,7 @@ const Sidebar = () => {
             >
               Nhân sự
             </Typography>
-            <Item
-              title="Cán bộ"
-              to="/users"
-              icon={<PeopleOutlinedIcon />}
-            />
+            <Item title="Cán bộ" to="/users" icon={<PersonIcon />} />
             <Item
               title="Cơ quan ban hành"
               to="/team"
@@ -148,11 +141,6 @@ const Sidebar = () => {
               to="/contacts"
               icon={<ContactsOutlinedIcon />}
             />
-            {/* <Item
-              title="Invoices Balances"
-              to="/invoices"
-              icon={<ReceiptOutlinedIcon />}
-            /> */}
 
             <Typography
               variant="h6"
@@ -161,11 +149,6 @@ const Sidebar = () => {
             >
               Danh mục
             </Typography>
-            {/* <Item
-              title="Profile Form"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-            /> */}
             <Item
               title="Lĩnh vực"
               to="/calendar"
@@ -176,30 +159,6 @@ const Sidebar = () => {
               to="/faq"
               icon={<HelpOutlineOutlinedIcon />}
             />
-
-            {/* <Typography
-              variant="h6"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography>
-            <Item title="Bar Chart" to="/bar" icon={<BarChartOutlinedIcon />} />
-            <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-            />
-            <Item
-              title="Line Chart"
-              to="/line"
-              icon={<TimelineOutlinedIcon />}
-            />
-            <Item
-              title="Geography Chart"
-              to="/geography"
-              icon={<MapOutlinedIcon />}
-            /> */}
           </Box>
         </Menu>
       </ProSidebar>
