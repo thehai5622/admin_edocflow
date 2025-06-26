@@ -1,14 +1,25 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, TextField, useTheme } from "@mui/material";
+import {
+  Box,
+  TextField,
+  useTheme,
+  IconButton,
+  Tooltip,
+  Button,
+} from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import api from "../../service/apiService";
 import { useSearchParams } from "react-router-dom";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
 
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isDarkMode = theme.palette.mode === "dark";
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -71,7 +82,12 @@ const Users = () => {
       flex: 1,
       cellClassName: "name-column--cell",
     },
-    { field: "username", headerName: "Tên đăng nhập", flex: 1 },
+    {
+      field: "username",
+      headerName: "Tên đăng nhập",
+      flex: 1,
+      valueGetter: (params) => params.row.username || "--",
+    },
     { field: "phone", headerName: "Số điện thoại", flex: 1 },
     {
       field: "email",
@@ -99,33 +115,22 @@ const Users = () => {
         const isActive = params.row.status === 1;
         return (
           <>
-            <button
-              // onClick={() => handleActionClick(params.row)}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "4px",
-                border: "none",
-                cursor: "pointer",
-                color: "white",
-                backgroundColor: isActive ? "#d32f2f" : "#2e7d32",
-              }}
+            <Tooltip
+              title={
+                isActive ? "Khóa hoạt động cán bộ" : "Mở khóa hoạt động cán bộ"
+              }
+              sx={{ userSelect: "none" }}
             >
-              {isActive ? "Khóa" : "Cấp tài khoản"}
-            </button>
+              <IconButton>
+                {isActive ? <LockIcon /> : <LockOpenIcon />}
+              </IconButton>
+            </Tooltip>
             {!params.row.username && (
-              <button
-                // onClick={() => handleActionClick(params.row)}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: "4px",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "white",
-                  backgroundColor: colors.greenAccent[500],
-                }}
-              >
-                Cấp tài khoản
-              </button>
+              <Tooltip title="Cấp tài khoản cho cán bộ">
+                <IconButton>
+                  <AccountBoxIcon />
+                </IconButton>
+              </Tooltip>
             )}
           </>
         );
@@ -139,14 +144,58 @@ const Users = () => {
         title="DANH SÁCH CÁN BỘ"
         subtitle="Quản lý thông tin cán bộ trong hệ thống"
       />
-      <TextField
-        label="Tìm kiếm"
-        variant="outlined"
-        fullWidth
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        sx={{ mb: 2 }}
-      />
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 2 }} // optional: margin bottom cho khoảng cách
+      >
+        <TextField
+          label="Tìm kiếm"
+          variant="outlined"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          sx={{
+            width: "30%",
+            mr: 2,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: isDarkMode
+                  ? "rgba(255, 255, 255, 0.3)"
+                  : undefined,
+              },
+              "&:hover fieldset": {
+                borderColor: isDarkMode ? "white" : undefined,
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: isDarkMode ? "white" : theme.palette.primary.main,
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: isDarkMode ? "white" : undefined,
+            },
+            "& .MuiInputBase-input": {
+              color: isDarkMode ? "white" : undefined,
+            },
+          }}
+        />
+
+        <Button
+          sx={{
+            backgroundColor: colors.blueAccent[700],
+            color: colors.grey[100],
+            fontSize: "14px",
+            fontWeight: "700",
+            padding: "10px 20px",
+            ":hover": {
+              backgroundColor: colors.blueAccent[300],
+            },
+          }}
+          color="primary"
+        >
+          Thêm mới
+        </Button>
+      </Box>
       <Box
         height="75vh"
         sx={{

@@ -6,13 +6,15 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import PersonIcon from "@mui/icons-material/Person";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import {
+  HomeOutlined as HomeOutlinedIcon,
+  PeopleOutlined as PeopleOutlinedIcon,
+  ContactsOutlined as ContactsOutlinedIcon,
+  Person as PersonIcon,
+  CalendarTodayOutlined as CalendarTodayOutlinedIcon,
+  HelpOutlineOutlined as HelpOutlineOutlinedIcon,
+  MenuOutlined as MenuOutlinedIcon,
+} from "@mui/icons-material";
 
 const Item = ({ title, to, icon }) => {
   const theme = useTheme();
@@ -118,7 +120,7 @@ const Sidebar = () => {
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
-              title="Dashboard"
+              title="Tổng quan"
               to="/dashboard"
               icon={<HomeOutlinedIcon />}
             />
