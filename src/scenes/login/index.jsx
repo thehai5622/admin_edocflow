@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
 import axios from "axios";
+import { tokens } from "../../theme";
 import CryptoJS from "crypto-js";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../features/auth/authSlice";
@@ -9,6 +10,8 @@ import { loginSuccess } from "../../features/auth/authSlice";
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -57,17 +60,71 @@ const Login = () => {
         <TextField
           label="Username"
           value={username}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: colors.grey[100],
+              },
+              "&:hover fieldset": {
+                borderColor: colors.blueAccent[500],
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: colors.grey[100],
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: colors.grey[100],
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: colors.grey[100],
+            },
+            "& .MuiInputBase-input": {
+              color: colors.grey[100],
+            },
+          }}
           onChange={(e) => setUsername(e.target.value)}
         />
         <TextField
           label="Mật khẩu"
           type="password"
           value={password}
+          sx={{
+            mt: 2,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: colors.grey[100],
+              },
+              "&:hover fieldset": {
+                borderColor: colors.blueAccent[500],
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: colors.grey[100],
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: colors.grey[100],
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: colors.grey[100],
+            },
+            "& .MuiInputBase-input": {
+              color: colors.grey[100],
+            },
+          }}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ marginTop: 12 }}
         />
         <Button
-          variant="contained"
+          sx={{
+            backgroundColor: colors.blueAccent[700],
+            color: colors.grey[100],
+            fontSize: "14px",
+            fontWeight: "700",
+            padding: "10px 20px",
+            ":hover": {
+              backgroundColor: colors.blueAccent[300],
+            },
+          }}
+          color="primary"
           type="submit"
           onClick={handleLogin}
           style={{ marginTop: 24 }}

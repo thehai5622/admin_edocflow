@@ -19,7 +19,6 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const isDarkMode = theme.palette.mode === "dark";
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -160,22 +159,23 @@ const Users = () => {
             mr: 2,
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
-                borderColor: isDarkMode
-                  ? "rgba(255, 255, 255, 0.3)"
-                  : undefined,
+                borderColor: colors.grey[100],
               },
               "&:hover fieldset": {
-                borderColor: isDarkMode ? "white" : undefined,
+                borderColor: colors.blueAccent[500],
               },
               "&.Mui-focused fieldset": {
-                borderColor: isDarkMode ? "white" : theme.palette.primary.main,
+                borderColor: colors.grey[100],
               },
             },
             "& .MuiInputLabel-root": {
-              color: isDarkMode ? "white" : undefined,
+              color: colors.grey[100],
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: colors.grey[100],
             },
             "& .MuiInputBase-input": {
-              color: isDarkMode ? "white" : undefined,
+              color: colors.grey[100],
             },
           }}
         />
