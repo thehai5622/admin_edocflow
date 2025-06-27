@@ -18,6 +18,7 @@ import { ColorModeContext, useMode } from "./theme";
 import Calendar from "./scenes/calendar/calendar";
 import Login from "./scenes/login";
 import PrivateRoute from "./components/PrivateRoute";
+import CreateUser from "./scenes/user/CreateUser";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -50,8 +51,12 @@ const MainLayout = () => {
       <main className="content">
         <Topbar setIsSidebar={setIsSidebar} />
         <Routes>
-          <Route path="/users" element={<Users />} />
           <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Cán bộ */}
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/create" element={<CreateUser />} />
+
           <Route path="/team" element={<Team />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/invoices" element={<Invoices />} />

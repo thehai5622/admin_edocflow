@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import api from "../../service/apiService";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import LockIcon from "@mui/icons-material/Lock";
@@ -19,6 +19,7 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -186,12 +187,14 @@ const Users = () => {
             color: colors.grey[100],
             fontSize: "14px",
             fontWeight: "700",
-            padding: "10px 20px",
+            padding: "10px 40px",
             ":hover": {
               backgroundColor: colors.blueAccent[300],
             },
           }}
           color="primary"
+          variant="contained"
+          onClick={() => navigate("/users/create")}
         >
           Thêm mới
         </Button>

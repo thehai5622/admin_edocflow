@@ -136,12 +136,12 @@ const Sidebar = () => {
             <Item
               title="Cơ quan ban hành"
               to="/team"
-              icon={<PeopleOutlinedIcon />}
+              icon={<ContactsOutlinedIcon />}
             />
             <Item
               title="Phòng ban"
               to="/contacts"
-              icon={<ContactsOutlinedIcon />}
+              icon={<PeopleOutlinedIcon />}
             />
 
             <Typography
