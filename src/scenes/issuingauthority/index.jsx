@@ -15,6 +15,7 @@ import Header from "../../components/Header";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import { convertDateTime } from "../../utils/utils";
 
 const IssuingAuthority = () => {
   const theme = useTheme();
@@ -92,13 +93,13 @@ const IssuingAuthority = () => {
       field: "created_at",
       headerName: "Thời gian tạo",
       flex: 1,
-      valueGetter: (params) => params.row.created_at || "--",
+      valueGetter: (params) => convertDateTime(params.row.created_at) ,
     },
     {
       field: "updated_at",
       headerName: "Cập nhật lần cuối",
       flex: 1,
-      valueGetter: (params) => params.row.updated_at || "--",
+      valueGetter: (params) => convertDateTime(params.row.updated_at),
     },
     {
       field: "actions",
