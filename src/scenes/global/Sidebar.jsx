@@ -140,7 +140,7 @@ const Sidebar = () => {
             />
             <Item
               title="Phòng ban"
-              to="/contacts"
+              to="/department"
               icon={<PeopleOutlinedIcon />}
             />
 

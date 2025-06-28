@@ -22,6 +22,7 @@ import CreateUser from "./scenes/user/CreateUser";
 import IssuingAuthority from "./scenes/issuingauthority";
 import Field from "./scenes/field";
 import TypeFile from "./scenes/typefile";
+import Department from "./scenes/department";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -69,6 +70,9 @@ const MainLayout = () => {
 
             {/* Loại file */}
             <Route path="/typefile" element={<TypeFile />} />
+
+            {/* Phòng ban */}
+            <Route path="/department" element={<Department />} />
 
 
             <Route path="/team" element={<Team />} />
