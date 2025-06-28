@@ -191,7 +191,7 @@ const TypeFile = () => {
             setUpdateDialogOpen(true);
           }}
         >
-          <Typography color={colors.blueAccent[500]} sx={{ cursor: "pointer" }}>
+          <Typography color={colors.blueAccent[500]} sx={{ cursor: "pointer", fontWeight: "600" }}>
             {params.row.name}
           </Typography>
         </div>
