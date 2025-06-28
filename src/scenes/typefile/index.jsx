@@ -6,21 +6,33 @@ import {
   IconButton,
   Tooltip,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Typography,
 } from "@mui/material";
+import { Formik } from "formik";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import api from "../../service/apiService";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { tokens } from "../../theme";
+import * as yup from "yup";
 import Header from "../../components/Header";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { convertDateTime } from "../../utils/utils";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const TypeFile = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const navigate = useNavigate();
+
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -35,9 +47,9 @@ const TypeFile = () => {
   });
   const [keyword, setKeyword] = useState(initialKeyword);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const res = await api.get(`/v1/typetemplatefile`, {
+      const res = await api.get(`/v1/typefile`, {
         params: {
           page: pagination.page,
           limit: pagination.limit,
@@ -55,8 +67,8 @@ const TypeFile = () => {
   }, [pagination.page, pagination.limit, keyword]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
     const params = {
@@ -66,6 +78,96 @@ const TypeFile = () => {
     if (keyword) params.keyword = keyword;
     setSearchParams(params);
   }, [pagination.page, pagination.limit, keyword, setSearchParams]);
+
+  const handleCreateSubmit = (values) => {
+    api
+      .post("/v1/typefile", values)
+      .then((response) => {
+        fetchData();
+        setCreateDialogOpen(false);
+        console.log(response.data);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
+  const handleUpdateSubmit = (values) => {
+    api
+      .put(`/v1/typefile/${values.id}`, values)
+      .then((response) => {
+        fetchData();
+        setUpdateDialogOpen(false);
+        console.log(response.data);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
+  const handleDeleteConfirm = () => {
+    api
+      .delete(`/v1/typefile/${selectedRow.uuid}`)
+      .then((response) => {
+        fetchData();
+        setDeleteDialogOpen(false);
+        console.log(response.data);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
 
   const columns = [
     {
@@ -82,6 +184,18 @@ const TypeFile = () => {
       headerName: "Tên",
       flex: 1,
       cellClassName: "name-column--cell",
+      renderCell: (params) => (
+        <div
+          onClick={() => {
+            setSelectedRow(params.row);
+            setUpdateDialogOpen(true);
+          }}
+        >
+          <Typography color={colors.blueAccent[500]} sx={{ cursor: "pointer" }}>
+            {params.row.name}
+          </Typography>
+        </div>
+      ),
     },
     {
       field: "created_at",
@@ -98,28 +212,20 @@ const TypeFile = () => {
     {
       field: "actions",
       headerName: "Thao tác",
-      flex: 1,
+      flex: 0.5,
       renderCell: (params) => {
-        const isActive = params.row.status === 1;
         return (
           <>
-            <Tooltip
-              title={
-                isActive ? "Khóa hoạt động cán bộ" : "Mở khóa hoạt động cán bộ"
-              }
-              sx={{ userSelect: "none" }}
-            >
-              <IconButton>
-                {isActive ? <LockIcon /> : <LockOpenIcon />}
+            <Tooltip title={"Xóa loại file"} sx={{ userSelect: "none" }}>
+              <IconButton
+                onClick={() => {
+                  setSelectedRow(params.row);
+                  setDeleteDialogOpen(true);
+                }}
+              >
+                <DeleteIcon />
               </IconButton>
             </Tooltip>
-            {!params.row.username && (
-              <Tooltip title="Cấp tài khoản cho cán bộ">
-                <IconButton>
-                  <AccountBoxIcon />
-                </IconButton>
-              </Tooltip>
-            )}
           </>
         );
       },
@@ -182,7 +288,9 @@ const TypeFile = () => {
           }}
           color="primary"
           variant="contained"
-          onClick={() => navigate("/users/create")}
+          onClick={() => {
+            setCreateDialogOpen(true);
+          }}
         >
           Thêm mới
         </Button>
@@ -238,8 +346,219 @@ const TypeFile = () => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
+
+      <Dialog
+        open={createDialogOpen}
+        onClose={() => {
+          setCreateDialogOpen(false);
+        }}
+      >
+        <DialogTitle>Thêm mới loại file</DialogTitle>
+        <Formik
+          onSubmit={handleCreateSubmit}
+          initialValues={initialValues}
+          validationSchema={checkoutSchema}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <DialogContent>
+                <TextField
+                  fullWidth
+                  variant="filled"
+                  type="text"
+                  label="Tên loại file"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.name}
+                  name="name"
+                  error={!!touched.name && !!errors.name}
+                  helperText={touched.name && errors.name}
+                  sx={{
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  onClick={() => setCreateDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  color="primary"
+                >
+                  Lưu lại
+                </Button>
+              </DialogActions>
+            </form>
+          )}
+        </Formik>
+      </Dialog>
+
+      <Dialog
+        open={updateDialogOpen}
+        onClose={() => {
+          setUpdateDialogOpen(false);
+        }}
+      >
+        <DialogTitle>Chỉnh sửa loại file</DialogTitle>
+        <Formik
+          enableReinitialize
+          onSubmit={handleUpdateSubmit}
+          initialValues={{
+            id: selectedRow?.uuid || "",
+            name: selectedRow?.name || "",
+          }}
+          validationSchema={checkoutSchemaU}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <DialogContent>
+                <TextField
+                  fullWidth
+                  variant="filled"
+                  type="text"
+                  label="Tên loại file"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.name}
+                  name="name"
+                  error={!!touched.name && !!errors.name}
+                  helperText={touched.name && errors.name}
+                  sx={{
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  onClick={() => setUpdateDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  color="primary"
+                >
+                  Lưu lại
+                </Button>
+              </DialogActions>
+            </form>
+          )}
+        </Formik>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Xóa loại file</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Bạn có chắc chắn muốn xóa loại file '
+            {
+              <span
+                style={{ fontWeight: "bold", color: colors.blueAccent[400] }}
+              >
+                {selectedRow?.name}
+              </span>
+            }
+            ' không?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+            onClick={() => setDeleteDialogOpen(false)}
+          >
+            Hủy
+          </Button>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+            onClick={handleDeleteConfirm}
+            color="primary"
+          >
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <ToastContainer />
     </Box>
   );
 };
+
+// Create schema
+const checkoutSchema = yup.object().shape({
+  name: yup.string().required("required"),
+});
+const initialValues = {
+  name: "",
+};
+
+// Update schema
+const checkoutSchemaU = yup.object().shape({
+  id: yup.string().required("required"),
+  name: yup.string().required("required"),
+});
 
 export default TypeFile;
