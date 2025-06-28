@@ -98,6 +98,7 @@ const Topbar = () => {
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
           <MenuItem onClick={handleMenuClose}>Thông tin cá nhân</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Đổi mật khẩu</MenuItem>
           <MenuItem onClick={handleLogoutClick}>Đăng xuất</MenuItem>
         </Menu>
       </Box>

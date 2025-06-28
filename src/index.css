@@ -13,6 +13,19 @@ body,
 .app {
   display: flex;
   position: relative;
+  height: 100%;
+}
+
+.main-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
+.main-area .content {
+  flex: 1;
+  overflow-y: auto;
 }
 
 ::-webkit-scrollbar {
