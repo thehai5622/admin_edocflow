@@ -296,7 +296,7 @@ const TypeFile = () => {
         </Button>
       </Box>
       <Box
-        height="75vh"
+        height="70vh"
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
