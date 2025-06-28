@@ -25,18 +25,18 @@ const CreateUser = () => {
   const [permissionOptions, setPermissionOptions] = useState([]);
 
   useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const res = await api.get("v1/permission/dropdown?keyword=");
-        const result = res.data?.data || [];
-        setPermissionOptions(result);
-      } catch (error) {
-        console.error("Lỗi tải danh sách quyền:", error);
-      }
-    };
-
     fetchPermissions();
   }, []);
+
+  const fetchPermissions = async () => {
+    try {
+      const res = await api.get("v1/permission/dropdown?keyword=");
+      const result = res.data?.data || [];
+      setPermissionOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách quyền:", error);
+    }
+  };
 
   const handleFormSubmit = (values) => {
     console.log(values);
@@ -218,7 +218,7 @@ const CreateUser = () => {
                   fullWidth
                   options={permissionOptions}
                   getOptionLabel={(option) => option?.name || ""}
-                  onChange={(event, value) =>
+                  onChange={(_, value) =>
                     setFieldValue("permission", value)
                   }
                   value={values.permission}

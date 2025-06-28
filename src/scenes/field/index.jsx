@@ -428,7 +428,7 @@ const Field = () => {
           setUpdateDialogOpen(false);
         }}
       >
-        <DialogTitle>Chỉnh sửa loại file</DialogTitle>
+        <DialogTitle>Chỉnh sửa lĩnh vực</DialogTitle>
         <Formik
           enableReinitialize
           onSubmit={handleUpdateSubmit}
@@ -502,10 +502,10 @@ const Field = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
       >
-        <DialogTitle>Xóa loại file</DialogTitle>
+        <DialogTitle>Xóa lĩnh vực</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Bạn có chắc chắn muốn xóa loại file '
+            Bạn có chắc chắn muốn xóa lĩnh vực '
             {
               <span
                 style={{ fontWeight: "bold", color: colors.blueAccent[400] }}
