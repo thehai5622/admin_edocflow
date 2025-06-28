@@ -135,7 +135,7 @@ const Sidebar = () => {
             <Item title="Cán bộ" to="/users" icon={<PersonIcon />} />
             <Item
               title="Cơ quan ban hành"
-              to="/team"
+              to="/issuingauthority"
               icon={<ContactsOutlinedIcon />}
             />
             <Item

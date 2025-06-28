@@ -19,6 +19,7 @@ import Calendar from "./scenes/calendar/calendar";
 import Login from "./scenes/login";
 import PrivateRoute from "./components/PrivateRoute";
 import CreateUser from "./scenes/user/CreateUser";
+import IssuingAuthority from "./scenes/issuingauthority";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -57,6 +58,9 @@ const MainLayout = () => {
             {/* Cán bộ */}
             <Route path="/users" element={<Users />} />
             <Route path="/users/create" element={<CreateUser />} />
+
+            {/* Cơ quan ban hành */}
+            <Route path="/issuingauthority" element={<IssuingAuthority />} />
 
             <Route path="/team" element={<Team />} />
             <Route path="/contacts" element={<Contacts />} />

@@ -5,7 +5,8 @@ import {
   Button,
   TextField,
   useTheme,
-  Autocomplete
+  Autocomplete,
+  Typography,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -19,6 +20,8 @@ const CreateUser = () => {
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [permissionOptions, setPermissionOptions] = useState([]);
 
   useEffect(() => {
@@ -40,12 +43,7 @@ const CreateUser = () => {
   };
 
   return (
-    <Box
-      m="0px 20px"
-      height="100%"
-      display="flex"
-      flexDirection="column"
-    >
+    <Box m="0px 20px" height="100%" display="flex" flexDirection="column">
       {/* PHẦN HEADER CỐ ĐỊNH */}
       <Box
         display="flex"
@@ -66,8 +64,8 @@ const CreateUser = () => {
             fontWeight: "700",
             padding: "10px 40px",
             ":hover": {
-              backgroundColor: colors.blueAccent[300]
-            }
+              backgroundColor: colors.blueAccent[300],
+            },
           }}
           color="primary"
           variant="contained"
@@ -77,11 +75,7 @@ const CreateUser = () => {
       </Box>
 
       {/* PHẦN FORM CUỘN */}
-      <Box
-        flex="1"
-        overflow="auto"
-        pb={4}
-      >
+      <Box flex="1" overflow="auto" pb={4}>
         <Formik
           onSubmit={handleFormSubmit}
           initialValues={initialValues}
@@ -97,14 +91,101 @@ const CreateUser = () => {
             setFieldValue,
           }) => (
             <form id="create-user-form" onSubmit={handleSubmit}>
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                    backgroundColor: "#f5f5f5",
+                  }}
+                >
+                  <img
+                    src={selectedImage || "/assets/user.png"}
+                    alt="avatar"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
+
+                <Box flex="1">
+                  <Button
+                    component="label"
+                    variant="contained"
+                    sx={{
+                      backgroundColor: colors.blueAccent[700],
+                      color: colors.grey[100],
+                      fontWeight: "700",
+                      fontSize: "14px",
+                      mr: 2,
+                      ":hover": { backgroundColor: colors.blueAccent[300] },
+                    }}
+                  >
+                    Chọn file
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setSelectedFile(file);
+                          setSelectedImage(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    sx={{ mr: 2, fontWeight: "700", fontSize: "14px" }}
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setSelectedImage(null);
+                    }}
+                    startIcon={<i className="fa fa-trash" />}
+                  >
+                    Xóa ảnh đại diện
+                  </Button>
+                  <Typography
+                    sx={{
+                      maxWidth: "250px",
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 2,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selectedFile?.name || "Tên file"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    mt={1}
+                    fontSize={13}
+                  >
+                    Hình ảnh được dùng làm ảnh đại diện
+                  </Typography>
+                </Box>
+              </Box>
+
               <Box
                 display="grid"
                 gap="30px"
                 gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                 sx={{
                   "& > div": {
-                    gridColumn: isNonMobile ? undefined : "span 4"
-                  }
+                    gridColumn: isNonMobile ? undefined : "span 4",
+                  },
                 }}
               >
                 <TextField
