@@ -107,7 +107,6 @@ const IssuingAuthority = () => {
       .then((response) => {
         fetchData();
         setCreateDialogOpen(false);
-        console.log(response.data);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
@@ -140,7 +139,6 @@ const IssuingAuthority = () => {
       .then((response) => {
         fetchData();
         setUpdateDialogOpen(false);
-        console.log(response.data);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
@@ -170,7 +168,6 @@ const IssuingAuthority = () => {
       .then((response) => {
         fetchData();
         setDeleteDialogOpen(false);
-        console.log(response.data);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
