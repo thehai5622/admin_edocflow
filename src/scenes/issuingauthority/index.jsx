@@ -36,7 +36,7 @@ const IssuingAuthority = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await api.get(`/v1/user`, {
+      const res = await api.get(`/v1/issuingauthority`, {
         params: {
           page: pagination.page,
           limit: pagination.limit,
@@ -49,7 +49,7 @@ const IssuingAuthority = () => {
         totalCount: res.data.pagination.totalCount,
       }));
     } catch (error) {
-      console.error("Lỗi khi tải danh sách người dùng", error);
+      console.error("Lỗi khi tải danh sách cơ quan ban hành", error);
     }
   }, [pagination.page, pagination.limit, keyword]);
 
@@ -83,29 +83,22 @@ const IssuingAuthority = () => {
       cellClassName: "name-column--cell",
     },
     {
-      field: "username",
-      headerName: "Tên đăng nhập",
+      field: "administrative_level",
+      headerName: "Thuộc cấp",
       flex: 1,
-      valueGetter: (params) => params.row.username || "--",
-    },
-    { field: "phone", headerName: "Số điện thoại", flex: 1 },
-    {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-      valueGetter: (params) => params.row.email || "--",
+      valueGetter: (params) => params.row.administrative_level?.name || "--",
     },
     {
-      field: "permission",
-      headerName: "Quyền",
+      field: "created_at",
+      headerName: "Thời gian tạo",
       flex: 1,
-      valueGetter: (params) => params.row.permission?.name || "--",
+      valueGetter: (params) => params.row.created_at || "--",
     },
     {
-      field: "issuing_authority",
-      headerName: "Cơ quan cấp",
+      field: "updated_at",
+      headerName: "Cập nhật lần cuối",
       flex: 1,
-      valueGetter: (params) => params.row.issuing_authority?.name || "--",
+      valueGetter: (params) => params.row.updated_at || "--",
     },
     {
       field: "actions",
@@ -141,8 +134,8 @@ const IssuingAuthority = () => {
   return (
     <Box m="20px">
       <Header
-        title="DANH SÁCH CÁN BỘ"
-        subtitle="Quản lý thông tin cán bộ trong hệ thống"
+        title="DANH SÁCH CƠ QUAN BAN HÀNH"
+        subtitle="Quản lý thông tin cơ quan ban hành trong hệ thống"
       />
       <Box
         display="flex"
