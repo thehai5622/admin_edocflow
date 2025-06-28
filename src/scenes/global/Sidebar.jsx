@@ -11,8 +11,8 @@ import {
   PeopleOutlined as PeopleOutlinedIcon,
   ContactsOutlined as ContactsOutlinedIcon,
   Person as PersonIcon,
-  CalendarTodayOutlined as CalendarTodayOutlinedIcon,
-  HelpOutlineOutlined as HelpOutlineOutlinedIcon,
+  TextFields as TextFieldsIcon,
+  Title as TitleIcon,
   MenuOutlined as MenuOutlinedIcon,
 } from "@mui/icons-material";
 
@@ -153,13 +153,13 @@ const Sidebar = () => {
             </Typography>
             <Item
               title="Lĩnh vực"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
+              to="/field"
+              icon={<TextFieldsIcon />}
             />
             <Item
               title="Loại file"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
+              to="/typefile"
+              icon={<TitleIcon />}
             />
           </Box>
         </Menu>

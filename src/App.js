@@ -20,6 +20,8 @@ import Login from "./scenes/login";
 import PrivateRoute from "./components/PrivateRoute";
 import CreateUser from "./scenes/user/CreateUser";
 import IssuingAuthority from "./scenes/issuingauthority";
+import Field from "./scenes/field";
+import TypeFile from "./scenes/typefile";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -61,6 +63,13 @@ const MainLayout = () => {
 
             {/* Cơ quan ban hành */}
             <Route path="/issuingauthority" element={<IssuingAuthority />} />
+
+            {/* Lĩnh vực */}
+            <Route path="/field" element={<Field />} />
+
+            {/* Loại file */}
+            <Route path="/typefile" element={<TypeFile />} />
+
 
             <Route path="/team" element={<Team />} />
             <Route path="/contacts" element={<Contacts />} />
