@@ -23,6 +23,7 @@ import IssuingAuthority from "./scenes/issuingauthority";
 import Field from "./scenes/field";
 import TypeFile from "./scenes/typefile";
 import Department from "./scenes/department";
+import AdministrativeLevel from "./scenes/administrativelevel";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -74,6 +75,8 @@ const MainLayout = () => {
             {/* Phòng ban */}
             <Route path="/department" element={<Department />} />
 
+            {/* Cấp hành chính */}
+            <Route path="/administrativelevel" element={<AdministrativeLevel />} />
 
             <Route path="/team" element={<Team />} />
             <Route path="/contacts" element={<Contacts />} />

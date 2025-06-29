@@ -14,6 +14,7 @@ import {
   TextFields as TextFieldsIcon,
   Title as TitleIcon,
   MenuOutlined as MenuOutlinedIcon,
+  Badge as BadgeIcon
 } from "@mui/icons-material";
 
 const Item = ({ title, to, icon }) => {
@@ -151,6 +152,11 @@ const Sidebar = () => {
             >
               Danh mục
             </Typography>
+            <Item
+              title="Cấp hành chính"
+              to="/administrativelevel"
+              icon={<BadgeIcon />}
+            />
             <Item
               title="Lĩnh vực"
               to="/field"

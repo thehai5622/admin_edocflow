@@ -6,33 +6,28 @@ import {
   IconButton,
   Tooltip,
   Button,
-  Typography,
-  Autocomplete,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
+  Typography,
 } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Formik } from "formik";
-import * as yup from "yup";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import api from "../../service/apiService";
 import { useSearchParams } from "react-router-dom";
 import { tokens } from "../../theme";
+import * as yup from "yup";
 import Header from "../../components/Header";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { convertDateTime } from "../../utils/utils";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const IssuingAuthority = () => {
+const AdministrativeLevel = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
-  const [administrativeLevelOptions, setAdministrativeLevelOptions] = useState(
-    []
-  );
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -52,23 +47,9 @@ const IssuingAuthority = () => {
   });
   const [keyword, setKeyword] = useState(initialKeyword);
 
-  useEffect(() => {
-    fetchAdministrativeLevel();
-  }, []);
-
-  const fetchAdministrativeLevel = async () => {
-    try {
-      const res = await api.get("v1/administrativelevel/dropdown?keyword=");
-      const result = res.data?.data || [];
-      setAdministrativeLevelOptions(result);
-    } catch (error) {
-      console.error("Lỗi tải danh sách quyền:", error);
-    }
-  };
-
   const fetchData = useCallback(async () => {
     try {
-      const res = await api.get(`/v1/issuingauthority`, {
+      const res = await api.get(`/v1/administrativelevel`, {
         params: {
           page: pagination.page,
           limit: pagination.limit,
@@ -81,7 +62,7 @@ const IssuingAuthority = () => {
         totalCount: res.data.pagination.totalCount,
       }));
     } catch (error) {
-      console.error("Lỗi khi tải danh sách cơ quan ban hành", error);
+      console.error("Lỗi khi tải danh sách lĩnh vực", error);
     }
   }, [pagination.page, pagination.limit, keyword]);
 
@@ -100,10 +81,7 @@ const IssuingAuthority = () => {
 
   const handleCreateSubmit = (values) => {
     api
-      .post("/v1/issuingauthority", {
-        name: values.name,
-        administrativelevel_id: values.administrative_level.uuid,
-      })
+      .post("/v1/administrativelevel", values)
       .then((response) => {
         fetchData();
         setCreateDialogOpen(false);
@@ -132,10 +110,7 @@ const IssuingAuthority = () => {
 
   const handleUpdateSubmit = (values) => {
     api
-      .put(`/v1/issuingauthority/${values.id}`, {
-        name: values.name,
-        administrativelevel_id: values.administrative_level.uuid,
-      })
+      .put(`/v1/administrativelevel/${values.id}`, values)
       .then((response) => {
         fetchData();
         setUpdateDialogOpen(false);
@@ -164,7 +139,7 @@ const IssuingAuthority = () => {
 
   const handleDeleteConfirm = () => {
     api
-      .delete(`/v1/issuingauthority/${selectedRow.uuid}`)
+      .delete(`/v1/administrativelevel/${selectedRow.uuid}`)
       .then((response) => {
         fetchData();
         setDeleteDialogOpen(false);
@@ -213,20 +188,11 @@ const IssuingAuthority = () => {
             setUpdateDialogOpen(true);
           }}
         >
-          <Typography
-            color={colors.blueAccent[500]}
-            sx={{ cursor: "pointer", fontWeight: "600" }}
-          >
+          <Typography color={colors.blueAccent[500]} sx={{ cursor: "pointer", fontWeight: "600" }}>
             {params.row.name}
           </Typography>
         </div>
       ),
-    },
-    {
-      field: "administrative_level",
-      headerName: "Thuộc cấp",
-      flex: 1,
-      valueGetter: (params) => params.row.administrative_level?.name || "--",
     },
     {
       field: "created_at",
@@ -247,7 +213,7 @@ const IssuingAuthority = () => {
       renderCell: (params) => {
         return (
           <>
-            <Tooltip title={"Xóa loại file"} sx={{ userSelect: "none" }}>
+            <Tooltip title={"Xóa cấp hành chính"} sx={{ userSelect: "none" }}>
               <IconButton
                 onClick={() => {
                   setSelectedRow(params.row);
@@ -266,14 +232,14 @@ const IssuingAuthority = () => {
   return (
     <Box m="20px">
       <Header
-        title="DANH SÁCH CƠ QUAN BAN HÀNH"
-        subtitle="Quản lý thông tin cơ quan ban hành trong hệ thống"
+        title="DANH SÁCH CẤP HÀNH CHÍNH"
+        subtitle="Quản lý thông tin cấp hành chính trong hệ thống"
       />
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ mb: 2 }} // optional: margin bottom cho khoảng cách
+        sx={{ mb: 2 }}
       >
         <TextField
           label="Tìm kiếm"
@@ -384,7 +350,7 @@ const IssuingAuthority = () => {
           setCreateDialogOpen(false);
         }}
       >
-        <DialogTitle>Thêm mới cơ quan ban hành</DialogTitle>
+        <DialogTitle>Thêm mới cấp hành chính</DialogTitle>
         <Formik
           onSubmit={handleCreateSubmit}
           initialValues={initialValues}
@@ -397,7 +363,6 @@ const IssuingAuthority = () => {
             handleBlur,
             handleChange,
             handleSubmit,
-            setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
               <DialogContent>
@@ -405,7 +370,7 @@ const IssuingAuthority = () => {
                   fullWidth
                   variant="filled"
                   type="text"
-                  label="Tên cơ quan ban hành"
+                  label="Tên cấp hành chính"
                   onBlur={handleBlur}
                   onChange={handleChange}
                   value={values.name}
@@ -416,38 +381,7 @@ const IssuingAuthority = () => {
                     "& .MuiInputLabel-root.Mui-focused": {
                       color: colors.grey[100],
                     },
-                    mb: 1,
                   }}
-                />
-                <Autocomplete
-                  fullWidth
-                  options={administrativeLevelOptions}
-                  getOptionLabel={(option) => option?.name || ""}
-                  onChange={(_, value) =>
-                    setFieldValue("administrative_level", value)
-                  }
-                  value={values.administrative_level}
-                  isOptionEqualToValue={(option, value) =>
-                    option.uuid === value?.uuid
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Thuộc cấp"
-                      variant="filled"
-                      onBlur={handleBlur}
-                      error={
-                        !!touched.administrative_level &&
-                        !!errors.administrative_level
-                      }
-                      helperText={
-                        touched.administrative_level &&
-                        errors.administrative_level
-                          ? errors.administrative_level
-                          : ""
-                      }
-                    />
-                  )}
                 />
               </DialogContent>
               <DialogActions>
@@ -488,14 +422,13 @@ const IssuingAuthority = () => {
           setUpdateDialogOpen(false);
         }}
       >
-        <DialogTitle>Chỉnh sửa cơ quan ban hành</DialogTitle>
+        <DialogTitle>Chỉnh sửa cấp hành chính</DialogTitle>
         <Formik
           enableReinitialize
           onSubmit={handleUpdateSubmit}
           initialValues={{
-            id: selectedRow?.uuid || "",
+            id: selectedRow?.uuid,
             name: selectedRow?.name || "",
-            administrative_level: selectedRow?.administrative_level || null,
           }}
           validationSchema={checkoutSchemaU}
         >
@@ -506,7 +439,6 @@ const IssuingAuthority = () => {
             handleBlur,
             handleChange,
             handleSubmit,
-            setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
               <DialogContent>
@@ -514,7 +446,7 @@ const IssuingAuthority = () => {
                   fullWidth
                   variant="filled"
                   type="text"
-                  label="Tên cơ quan ban hành"
+                  label="Tên cấp hành chính"
                   onBlur={handleBlur}
                   onChange={handleChange}
                   value={values.name}
@@ -525,38 +457,7 @@ const IssuingAuthority = () => {
                     "& .MuiInputLabel-root.Mui-focused": {
                       color: colors.grey[100],
                     },
-                    mb: 1,
                   }}
-                />
-                <Autocomplete
-                  fullWidth
-                  options={administrativeLevelOptions}
-                  getOptionLabel={(option) => option?.name || ""}
-                  onChange={(_, value) =>
-                    setFieldValue("administrative_level", value)
-                  }
-                  value={values.administrative_level}
-                  isOptionEqualToValue={(option, value) =>
-                    option.uuid === value?.uuid
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Thuộc cấp"
-                      variant="filled"
-                      onBlur={handleBlur}
-                      error={
-                        !!touched.administrative_level &&
-                        !!errors.administrative_level
-                      }
-                      helperText={
-                        touched.administrative_level &&
-                        errors.administrative_level
-                          ? errors.administrative_level
-                          : ""
-                      }
-                    />
-                  )}
                 />
               </DialogContent>
               <DialogActions>
@@ -595,10 +496,10 @@ const IssuingAuthority = () => {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
       >
-        <DialogTitle>Xóa lĩnh vực</DialogTitle>
+        <DialogTitle>Xóa cấp hành chính</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Bạn có chắc chắn muốn xóa cơ quan ban hành '
+            Bạn có chắc chắn muốn xóa cấp hành chính '
             {
               <span
                 style={{ fontWeight: "bold", color: colors.blueAccent[400] }}
@@ -646,18 +547,15 @@ const IssuingAuthority = () => {
 // Create schema
 const checkoutSchema = yup.object().shape({
   name: yup.string().required("required"),
-  administrative_level: yup.object().nullable().required("required"),
 });
 const initialValues = {
   name: "",
-  administrative_level: null,
 };
 
 // Update schema
 const checkoutSchemaU = yup.object().shape({
-  id: yup.string().required("required"),
+  id: yup.number().required("required"),
   name: yup.string().required("required"),
-  administrative_level: yup.object().nullable().required("required"),
 });
 
-export default IssuingAuthority;
+export default AdministrativeLevel;
