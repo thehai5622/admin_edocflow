@@ -21,7 +21,10 @@ import api from "../../service/apiService";
 import { useSearchParams } from "react-router-dom";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  DocumentScanner as DocumentScannerIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
 import { convertDateTime } from "../../utils/utils";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,11 +36,15 @@ const IssuingAuthority = () => {
   const [administrativeLevelOptions, setAdministrativeLevelOptions] = useState(
     []
   );
+  const [departmentOptions, setDepartmentOptions] = useState(
+    []
+  );
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [handlerDialogOpen, setHandlerDialogOpen] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -62,7 +69,17 @@ const IssuingAuthority = () => {
       const result = res.data?.data || [];
       setAdministrativeLevelOptions(result);
     } catch (error) {
-      console.error("Lỗi tải danh sách quyền:", error);
+      console.error("Lỗi tải danh sách cấp hành chính:", error);
+    }
+  };
+
+  const fetchDepartment = async () => {
+    try {
+      const res = await api.get("v1/department/dropdown?keyword=");
+      const result = res.data?.data || [];
+      setDepartmentOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách phòng ban:", error);
     }
   };
 
@@ -229,6 +246,12 @@ const IssuingAuthority = () => {
       valueGetter: (params) => params.row.administrative_level?.name || "--",
     },
     {
+      field: "department",
+      headerName: "Phòng ban xử lý văn bản",
+      flex: 1,
+      valueGetter: (params) => params.row.department?.name || "--",
+    },
+    {
       field: "created_at",
       headerName: "Thời gian tạo",
       flex: 1,
@@ -247,7 +270,17 @@ const IssuingAuthority = () => {
       renderCell: (params) => {
         return (
           <>
-            <Tooltip title={"Xóa loại file"} sx={{ userSelect: "none" }}>
+            <Tooltip title={"Chỉnh định phòng ban xử lý văn bản"} sx={{ userSelect: "none" }}>
+              <IconButton
+                onClick={() => {
+                  setSelectedRow(params.row);
+                  setDeleteDialogOpen(true);
+                }}
+              >
+                <DocumentScannerIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={"Xóa cơ quan ban hành"} sx={{ userSelect: "none" }}>
               <IconButton
                 onClick={() => {
                   setSelectedRow(params.row);
