@@ -24,7 +24,7 @@ import Header from "../../components/Header";
 import {
   DocumentScanner as DocumentScannerIcon,
   Delete as DeleteIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import { convertDateTime } from "../../utils/utils";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -36,9 +36,7 @@ const IssuingAuthority = () => {
   const [administrativeLevelOptions, setAdministrativeLevelOptions] = useState(
     []
   );
-  const [departmentOptions, setDepartmentOptions] = useState(
-    []
-  );
+  const [departmentOptions, setDepartmentOptions] = useState([]);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -73,9 +71,11 @@ const IssuingAuthority = () => {
     }
   };
 
-  const fetchDepartment = async () => {
+  const fetchDepartment = async (uuid) => {
     try {
-      const res = await api.get("v1/department/dropdown?keyword=");
+      const res = await api.get(
+        `v1/department/dropdown?issuing_authority=${uuid}`
+      );
       const result = res.data?.data || [];
       setDepartmentOptions(result);
     } catch (error) {
@@ -156,6 +156,38 @@ const IssuingAuthority = () => {
       .then((response) => {
         fetchData();
         setUpdateDialogOpen(false);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
+  const handleSetHandlerSubmit = (values) => {
+    api
+      .put(`/v1/issuingauthority/set-department-handler/${values.id}`, {
+        name: values.name,
+        department: values.department.uuid,
+      })
+      .then((response) => {
+        fetchData();
+        setHandlerDialogOpen(false);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
@@ -270,11 +302,15 @@ const IssuingAuthority = () => {
       renderCell: (params) => {
         return (
           <>
-            <Tooltip title={"Chỉnh định phòng ban xử lý văn bản"} sx={{ userSelect: "none" }}>
+            <Tooltip
+              title={"Chỉ định phòng ban xử lý văn bản"}
+              sx={{ userSelect: "none" }}
+            >
               <IconButton
                 onClick={() => {
                   setSelectedRow(params.row);
-                  setDeleteDialogOpen(true);
+                  fetchDepartment(params.row.uuid);
+                  setHandlerDialogOpen(true);
                 }}
               >
                 <DocumentScannerIcon />
@@ -625,6 +661,90 @@ const IssuingAuthority = () => {
       </Dialog>
 
       <Dialog
+        open={handlerDialogOpen}
+        onClose={() => {
+          setHandlerDialogOpen(false);
+        }}
+      >
+        <DialogTitle>Chỉ định phòng ban xử lý văn bản hành chính</DialogTitle>
+        <Formik
+          enableReinitialize
+          onSubmit={handleSetHandlerSubmit}
+          initialValues={{
+            id: selectedRow?.uuid || "",
+            name: selectedRow?.name || "",
+            department: selectedRow?.department || null,
+          }}
+          validationSchema={checkoutSchemaSetHandler}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleBlur,
+            handleSubmit,
+            setFieldValue,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <DialogContent>
+                <Autocomplete
+                  fullWidth
+                  options={departmentOptions}
+                  getOptionLabel={(option) => option?.name || ""}
+                  onChange={(_, value) => setFieldValue("department", value)}
+                  value={values.department}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value?.uuid
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Chọn phòng ban"
+                      variant="filled"
+                      onBlur={handleBlur}
+                      error={!!touched.department && !!errors.department}
+                      helperText={
+                        touched.department && errors.department
+                          ? errors.department
+                          : ""
+                      }
+                    />
+                  )}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  onClick={() => setHandlerDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  color="primary"
+                >
+                  Lưu lại
+                </Button>
+              </DialogActions>
+            </form>
+          )}
+        </Formik>
+      </Dialog>
+
+      <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
       >
@@ -691,6 +811,12 @@ const checkoutSchemaU = yup.object().shape({
   id: yup.string().required("required"),
   name: yup.string().required("required"),
   administrative_level: yup.object().nullable().required("required"),
+});
+
+// Set handler schema
+const checkoutSchemaSetHandler = yup.object().shape({
+  id: yup.string().required("required"),
+  department: yup.object().nullable().required("required"),
 });
 
 export default IssuingAuthority;

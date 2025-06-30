@@ -506,7 +506,6 @@ const Department = () => {
             handleBlur,
             handleChange,
             handleSubmit,
-            setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
               <DialogContent>
@@ -527,36 +526,6 @@ const Department = () => {
                     },
                     mb: 1,
                   }}
-                />
-                <Autocomplete
-                  fullWidth
-                  options={issuingauthorityOptions}
-                  getOptionLabel={(option) => option?.name || ""}
-                  onChange={(_, value) =>
-                    setFieldValue("issuing_authority", value)
-                  }
-                  value={values.issuing_authority}
-                  isOptionEqualToValue={(option, value) =>
-                    option.uuid === value?.uuid
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Thuộc cơ quan ban hành"
-                      variant="filled"
-                      onBlur={handleBlur}
-                      error={
-                        !!touched.issuing_authority &&
-                        !!errors.issuing_authority
-                      }
-                      helperText={
-                        touched.issuing_authority &&
-                        errors.issuing_authority
-                          ? errors.issuing_authority
-                          : ""
-                      }
-                    />
-                  )}
                 />
               </DialogContent>
               <DialogActions>
@@ -657,7 +626,6 @@ const initialValues = {
 const checkoutSchemaU = yup.object().shape({
   id: yup.string().required("required"),
   name: yup.string().required("required"),
-  issuing_authority: yup.object().nullable().required("required"),
 });
 
 export default Department;
