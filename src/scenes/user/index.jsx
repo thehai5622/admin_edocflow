@@ -9,17 +9,19 @@ import {
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import api from "../../service/apiService";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import { toast, ToastContainer } from "react-toastify";
 
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -52,6 +54,20 @@ const Users = () => {
       console.error("Lỗi khi tải danh sách người dùng", error);
     }
   }, [pagination.page, pagination.limit, keyword]);
+
+  useEffect(() => {
+    if (location.state?.type === "success") {
+      toast.success(location.state?.message, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     fetchUsers();
@@ -250,6 +266,8 @@ const Users = () => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
+
+      <ToastContainer />
     </Box>
   );
 };

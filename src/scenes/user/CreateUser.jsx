@@ -14,18 +14,25 @@ import { tokens } from "../../theme";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import { phoneRegExp } from "../../utils/utils";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const CreateUser = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const navigate = useNavigate();
+  let avatarFileUuid = null;
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [permissionOptions, setPermissionOptions] = useState([]);
+  const [issuingAuthorityOptions, setIssuingAuthorityOptions] = useState([]);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
 
   useEffect(() => {
     fetchPermissions();
+    fetchIssuingAuthority();
   }, []);
 
   const fetchPermissions = async () => {
@@ -38,8 +45,85 @@ const CreateUser = () => {
     }
   };
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
+  const fetchIssuingAuthority = async () => {
+    try {
+      const res = await api.get("v1/issuingauthority/dropdown?keyword=");
+      const result = res.data?.data || [];
+      setIssuingAuthorityOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách quyền:", error);
+    }
+  };
+
+  const fetchDepartment = async (uuid) => {
+    setDepartmentOptions([]);
+    try {
+      const res = await api.get(
+        `v1/department/dropdown?issuing_authority=${uuid}`
+      );
+      const result = res.data?.data || [];
+      setDepartmentOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách quyền:", error);
+    }
+  };
+
+  const handleFormSubmit = async (values) => {
+    try {
+      avatarFileUuid = null;
+
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const resUpload = await api.post("v1/file/single-upload", formData);
+        avatarFileUuid = resUpload.data?.file;
+      }
+
+      const createBody = {
+        name: values.name.trim(),
+        gender: values.gender ?? null,
+        birth_day: values.birth_day || null,
+        phone: values.phone.trim(),
+        email: values.email.trim() === "" ? null : values.email.trim(),
+        permission: values.permission?.uuid || null,
+        issuing_authority: values.issuing_authority?.uuid || null,
+        department: values.department?.uuid || null,
+        avatar: avatarFileUuid,
+      };
+
+      api
+        .post("/v1/user/create", createBody)
+        .then((response) => {
+          navigate("/users", {
+            state: {
+              type: "success",
+              message: response.data.message,
+            },
+          });
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        });
+    } catch (error) {
+      console.error("Lỗi tạo user:", error);
+      if (avatarFileUuid) {
+        try {
+          await api.delete(`/v1/file/${avatarFileUuid}`);
+          console.log("Đã rollback file avatar");
+        } catch (err) {
+          console.error("Lỗi khi xóa file rollback:", err);
+        }
+      }
+    }
   };
 
   return (
@@ -127,7 +211,7 @@ const CreateUser = () => {
                       ":hover": { backgroundColor: colors.blueAccent[300] },
                     }}
                   >
-                    Chọn file
+                    Chọn ảnh
                     <input
                       type="file"
                       hidden
@@ -192,40 +276,136 @@ const CreateUser = () => {
                   fullWidth
                   variant="filled"
                   type="text"
-                  label="First Name"
+                  label="Tên cán bộ"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.firstName}
-                  name="firstName"
-                  error={!!touched.firstName && !!errors.firstName}
-                  helperText={touched.firstName && errors.firstName}
-                  sx={{ gridColumn: "span 2" }}
+                  value={values.name}
+                  name="name"
+                  error={!!touched.name && !!errors.name}
+                  helperText={touched.name && errors.name}
+                  sx={{
+                    gridColumn: "span 4",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
                 />
-                <TextField
+                <Box
+                  sx={{
+                    gridColumn: "span 4",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography sx={{ mr: 2 }}>Giới tính</Typography>
+                  <Box>
+                    <label>
+                      <input
+                        type="radio"
+                        name="gender"
+                        value={1}
+                        checked={values.gender === 1}
+                        onChange={(e) =>
+                          setFieldValue("gender", Number(e.target.value))
+                        }
+                      />
+                      Nam
+                    </label>
+                    <label style={{ marginLeft: 16 }}>
+                      <input
+                        type="radio"
+                        name="gender"
+                        value={0}
+                        checked={values.gender === 0}
+                        onChange={(e) =>
+                          setFieldValue("gender", Number(e.target.value))
+                        }
+                      />
+                      Nữ
+                    </label>
+                  </Box>
+                </Box>
+                <Autocomplete
                   fullWidth
-                  variant="filled"
-                  type="text"
-                  label="Last Name"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.lastName}
-                  name="lastName"
-                  error={!!touched.lastName && !!errors.lastName}
-                  helperText={touched.lastName && errors.lastName}
-                  sx={{ gridColumn: "span 2" }}
+                  options={issuingAuthorityOptions}
+                  getOptionLabel={(option) => option?.name || ""}
+                  onChange={(_, value) => {
+                    setFieldValue("issuing_authority", value);
+                    fetchDepartment(value?.uuid);
+                  }}
+                  value={values.issuing_authority}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value?.uuid
+                  }
+                  sx={{
+                    gridColumn: "span 2",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Cơ quan ban hành"
+                      variant="filled"
+                      onBlur={handleBlur}
+                      error={
+                        !!touched.issuing_authority &&
+                        !!errors.issuing_authority
+                      }
+                      helperText={
+                        touched.issuing_authority && errors.issuing_authority
+                          ? errors.issuing_authority
+                          : ""
+                      }
+                    />
+                  )}
+                />
+                <Autocomplete
+                  fullWidth
+                  options={departmentOptions}
+                  getOptionLabel={(option) => option?.name || ""}
+                  onChange={(_, value) => setFieldValue("department", value)}
+                  value={values.department}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value?.uuid
+                  }
+                  sx={{
+                    gridColumn: "span 2",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Phòng ban"
+                      variant="filled"
+                      onBlur={handleBlur}
+                      error={!!touched.department && !!errors.department}
+                      helperText={
+                        touched.department && errors.department
+                          ? errors.department
+                          : ""
+                      }
+                    />
+                  )}
                 />
                 <Autocomplete
                   fullWidth
                   options={permissionOptions}
                   getOptionLabel={(option) => option?.name || ""}
-                  onChange={(_, value) =>
-                    setFieldValue("permission", value)
-                  }
+                  onChange={(_, value) => setFieldValue("permission", value)}
                   value={values.permission}
                   isOptionEqualToValue={(option, value) =>
                     option.uuid === value?.uuid
                   }
-                  sx={{ gridColumn: "span 4" }}
+                  sx={{
+                    gridColumn: "span 4",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -244,6 +424,24 @@ const CreateUser = () => {
                 <TextField
                   fullWidth
                   variant="filled"
+                  type="text"
+                  label="SĐT liên hệ"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.phone}
+                  name="phone"
+                  error={!!touched.phone && !!errors.phone}
+                  helperText={touched.phone && errors.phone}
+                  sx={{
+                    gridColumn: "span 4",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  variant="filled"
                   type="email"
                   label="Email"
                   onBlur={handleBlur}
@@ -252,77 +450,66 @@ const CreateUser = () => {
                   name="email"
                   error={!!touched.email && !!errors.email}
                   helperText={touched.email && errors.email}
-                  sx={{ gridColumn: "span 4" }}
+                  sx={{
+                    gridColumn: "span 4",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
                 />
                 <TextField
                   fullWidth
                   variant="filled"
-                  type="text"
-                  label="Contact Number"
+                  type="date"
+                  label="Ngày sinh"
+                  InputLabelProps={{ shrink: true }}
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.contact}
-                  name="contact"
-                  error={!!touched.contact && !!errors.contact}
-                  helperText={touched.contact && errors.contact}
-                  sx={{ gridColumn: "span 4" }}
-                />
-                <TextField
-                  fullWidth
-                  variant="filled"
-                  type="text"
-                  label="Address 1"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.address1}
-                  name="address1"
-                  error={!!touched.address1 && !!errors.address1}
-                  helperText={touched.address1 && errors.address1}
-                  sx={{ gridColumn: "span 4" }}
-                />
-                <TextField
-                  fullWidth
-                  variant="filled"
-                  type="text"
-                  label="Address 2"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.address2}
-                  name="address2"
-                  error={!!touched.address2 && !!errors.address2}
-                  helperText={touched.address2 && errors.address2}
-                  sx={{ gridColumn: "span 4" }}
+                  value={values.birth_day}
+                  name="birth_day"
+                  error={!!touched.birth_day && !!errors.birth_day}
+                  helperText={touched.birth_day && errors.birth_day}
+                  sx={{
+                    gridColumn: "span 4",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
                 />
               </Box>
             </form>
           )}
         </Formik>
       </Box>
+
+      <ToastContainer />
     </Box>
   );
 };
 
 const checkoutSchema = yup.object().shape({
-  firstName: yup.string().required("required"),
-  lastName: yup.string().required("required"),
+  permission: yup.object().nullable().required("required"),
+  issuing_authority: yup.object().nullable().required("required"),
+  department: yup.object().nullable().required("required"),
+  name: yup.string().required("required"),
   email: yup.string().email("invalid email").required("required"),
-  contact: yup
+  phone: yup
     .string()
     .matches(phoneRegExp, "Phone number is not valid")
     .required("required"),
-  address1: yup.string().required("required"),
-  address2: yup.string().required("required"),
-  permission: yup.object().nullable().required("required"),
+  gender: yup.number().oneOf([0, 1], "Invalid gender").required("required"),
+  birth_day: yup.date().required("required"),
 });
 
 const initialValues = {
-  firstName: "",
-  lastName: "",
+  name: "",
   email: "",
-  contact: "",
-  address1: "",
-  address2: "",
+  phone: "",
   permission: null,
+  issuing_authority: null,
+  department: null,
+  gender: 1,
+  birth_day: "",
 };
 
 export default CreateUser;

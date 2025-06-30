@@ -14,6 +14,7 @@ import Field from "./scenes/field";
 import TypeFile from "./scenes/typefile";
 import Department from "./scenes/department";
 import AdministrativeLevel from "./scenes/administrativelevel";
+import Page404 from "./scenes/page404";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -67,6 +68,8 @@ const MainLayout = () => {
 
             {/* Cấp hành chính */}
             <Route path="/administrativelevel" element={<AdministrativeLevel />} />
+
+            <Route path="*" element={<Page404 />} />
           </Routes>
         </main>
       </div>
