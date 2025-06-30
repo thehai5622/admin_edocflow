@@ -384,7 +384,7 @@ const Department = () => {
           setCreateDialogOpen(false);
         }}
       >
-        <DialogTitle>Thêm mới cơ quan ban hành</DialogTitle>
+        <DialogTitle>Thêm mới phòng ban cho cơ quan ban hành</DialogTitle>
         <Formik
           onSubmit={handleCreateSubmit}
           initialValues={initialValues}

@@ -13,6 +13,7 @@ const initialState = {
   status: null,
   issuing_authority: null, // object: { uuid, name }
   permission: null,        // object: { uuid, name }
+  department: null,        // object: { uuid, name }
 };
 
 const authSlice = createSlice({
@@ -34,6 +35,7 @@ const authSlice = createSlice({
       state.status = user.status;
       state.issuing_authority = user.issuing_authority;
       state.permission = user.permission;
+      state.department = user.department;
     },
     logout: (state) => {
       Object.assign(state, initialState);

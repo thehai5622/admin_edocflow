@@ -14,7 +14,7 @@ import {
   TextFields as TextFieldsIcon,
   Title as TitleIcon,
   MenuOutlined as MenuOutlinedIcon,
-  Badge as BadgeIcon
+  Badge as BadgeIcon,
 } from "@mui/icons-material";
 
 const Item = ({ title, to, icon }) => {
@@ -99,7 +99,11 @@ const Sidebar = () => {
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={`${process.env.REACT_APP_BASE_URL}${user.avatar}`}
+                  src={
+                    user.avatar != null
+                      ? `${process.env.REACT_APP_BASE_URL}${user.avatar}`
+                      : "/assets/user.png"
+                  }
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
@@ -112,8 +116,11 @@ const Sidebar = () => {
                 >
                   {user.name}
                 </Typography>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
+                <Typography variant="h4" color={colors.greenAccent[500]}>
                   {user.issuing_authority.name}
+                </Typography>
+                <Typography variant="h5" color={colors.greenAccent[200]}>
+                  {user.department.name}
                 </Typography>
               </Box>
             </Box>
@@ -157,16 +164,8 @@ const Sidebar = () => {
               to="/administrativelevel"
               icon={<BadgeIcon />}
             />
-            <Item
-              title="Lĩnh vực"
-              to="/field"
-              icon={<TextFieldsIcon />}
-            />
-            <Item
-              title="Loại file"
-              to="/typefile"
-              icon={<TitleIcon />}
-            />
+            <Item title="Lĩnh vực" to="/field" icon={<TextFieldsIcon />} />
+            <Item title="Loại file" to="/typefile" icon={<TitleIcon />} />
           </Box>
         </Menu>
       </ProSidebar>
