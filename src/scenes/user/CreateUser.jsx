@@ -137,25 +137,45 @@ const CreateUser = () => {
         flexShrink={0}
       >
         <Header title="THÊM MỚI CÁN BỘ" subtitle="Thông tin cán bộ" />
-        <Button
-          onClick={() => {
-            document.getElementById("create-user-form")?.requestSubmit();
-          }}
-          sx={{
-            backgroundColor: colors.blueAccent[700],
-            color: colors.grey[100],
-            fontSize: "14px",
-            fontWeight: "700",
-            padding: "10px 40px",
-            ":hover": {
-              backgroundColor: colors.blueAccent[300],
-            },
-          }}
-          color="primary"
-          variant="contained"
-        >
-          Lưu lại
-        </Button>
+        <Box>
+          <Button
+            onClick={() => navigate(-1)}
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "700",
+              padding: "10px 40px",
+              ":hover": {
+                backgroundColor: colors.blueAccent[300],
+              },
+              mr: 2,
+            }}
+            color="primary"
+            variant="contained"
+          >
+            Hủy bỏ
+          </Button>
+          <Button
+            onClick={() => {
+              document.getElementById("create-user-form")?.requestSubmit();
+            }}
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "700",
+              padding: "10px 40px",
+              ":hover": {
+                backgroundColor: colors.blueAccent[300],
+              },
+            }}
+            color="primary"
+            variant="contained"
+          >
+            Lưu lại
+          </Button>
+        </Box>
       </Box>
 
       {/* PHẦN FORM CUỘN */}

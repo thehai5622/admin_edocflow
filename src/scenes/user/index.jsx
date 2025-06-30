@@ -5,7 +5,13 @@ import {
   useTheme,
   IconButton,
   Tooltip,
+  Typography,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import api from "../../service/apiService";
@@ -15,6 +21,7 @@ import Header from "../../components/Header";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import PasswordIcon from "@mui/icons-material/Password";
 import { toast, ToastContainer } from "react-toastify";
 
 const Users = () => {
@@ -22,6 +29,9 @@ const Users = () => {
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -36,7 +46,7 @@ const Users = () => {
   });
   const [keyword, setKeyword] = useState(initialKeyword);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       const res = await api.get(`/v1/user`, {
         params: {
@@ -70,8 +80,8 @@ const Users = () => {
   }, [location, navigate]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
     const params = {
@@ -81,6 +91,39 @@ const Users = () => {
     if (keyword) params.keyword = keyword;
     setSearchParams(params);
   }, [pagination.page, pagination.limit, keyword, setSearchParams]);
+
+  const handleSetStatusConfirm = () => {
+    api
+      .put(
+        `/v1/user/${selectedRow.status === 0 ? "unlock" : "lock"}/${
+          selectedRow.uuid
+        }`
+      )
+      .then((response) => {
+        fetchData();
+        setStatusDialogOpen(false);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
 
   const columns = [
     {
@@ -97,6 +140,16 @@ const Users = () => {
       headerName: "Tên",
       flex: 1,
       cellClassName: "name-column--cell",
+      renderCell: (params) => (
+        <div>
+          <Typography
+            color={colors.blueAccent[500]}
+            sx={{ cursor: "pointer", fontWeight: "600" }}
+          >
+            {params.row.name}
+          </Typography>
+        </div>
+      ),
     },
     {
       field: "username",
@@ -137,14 +190,25 @@ const Users = () => {
               }
               sx={{ userSelect: "none" }}
             >
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  setSelectedRow(params.row);
+                  setStatusDialogOpen(true);
+                }}
+              >
                 {isActive ? <LockIcon /> : <LockOpenIcon />}
               </IconButton>
             </Tooltip>
-            {!params.row.username && (
+            {!params.row.username ? (
               <Tooltip title="Cấp tài khoản cho cán bộ">
                 <IconButton>
                   <AccountBoxIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Đặt lại mật khẩu mặc định cho cán bộ">
+                <IconButton>
+                  <PasswordIcon />
                 </IconButton>
               </Tooltip>
             )}
@@ -266,6 +330,56 @@ const Users = () => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
+
+      <Dialog
+        open={statusDialogOpen}
+        onClose={() => setStatusDialogOpen(false)}
+      >
+        <DialogTitle>
+          {selectedRow?.status === 1 ? "Khóa" : "Mở khóa"} cán bộ
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Bạn có chắc chắn muốn
+            {selectedRow?.status === 1 ? " khóa" : " mở khóa"} cán bộ '
+            {
+              <span
+                style={{ fontWeight: "bold", color: colors.blueAccent[400] }}
+              >
+                {selectedRow?.name}
+              </span>
+            }
+            ' không?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+            onClick={() => setStatusDialogOpen(false)}
+          >
+            Hủy
+          </Button>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+            onClick={handleSetStatusConfirm}
+            color="primary"
+          >
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <ToastContainer />
     </Box>
