@@ -23,6 +23,7 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import PasswordIcon from "@mui/icons-material/Password";
 import { toast, ToastContainer } from "react-toastify";
+import CryptoJS from "crypto-js";
 
 const Users = () => {
   const theme = useTheme();
@@ -32,6 +33,7 @@ const Users = () => {
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -102,6 +104,37 @@ const Users = () => {
       .then((response) => {
         fetchData();
         setStatusDialogOpen(false);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
+  const handleResetPasswordConfirm = () => {
+    api
+      .put(`/v1/user/reset-password/${selectedRow.uuid}`, {
+        password: CryptoJS.MD5(123456).toString(),
+      })
+      .then((response) => {
+        fetchData();
+        setResetPasswordDialogOpen(false);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
@@ -207,7 +240,12 @@ const Users = () => {
               </Tooltip>
             ) : (
               <Tooltip title="Đặt lại mật khẩu mặc định cho cán bộ">
-                <IconButton>
+                <IconButton
+                  onClick={() => {
+                    setSelectedRow(params.row);
+                    setResetPasswordDialogOpen(true);
+                  }}
+                >
                   <PasswordIcon />
                 </IconButton>
               </Tooltip>
@@ -374,6 +412,53 @@ const Users = () => {
               padding: "10px 20px",
             }}
             onClick={handleSetStatusConfirm}
+            color="primary"
+          >
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={resetPasswordDialogOpen}
+        onClose={() => setResetPasswordDialogOpen(false)}
+      >
+        <DialogTitle>Đặt lại mật khẩu mặc định cán bộ</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Mật khẩu của cán bộ '
+            {
+              <span
+                style={{ fontWeight: "bold", color: colors.blueAccent[400] }}
+              >
+                {selectedRow?.name}
+              </span>
+            }
+            ' sẽ là '123456'. Bạn có chắc chắn muốn đặt lại không?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+            onClick={() => setResetPasswordDialogOpen(false)}
+          >
+            Hủy
+          </Button>
+          <Button
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              fontSize: "14px",
+              fontWeight: "bold",
+              padding: "10px 20px",
+            }}
+            onClick={handleResetPasswordConfirm}
             color="primary"
           >
             Xác nhận
