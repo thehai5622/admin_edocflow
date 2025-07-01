@@ -7,6 +7,7 @@ import {
   Tooltip,
   Typography,
   Button,
+  Autocomplete,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,10 +19,13 @@ import api from "../../service/apiService";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
+import { Formik } from "formik";
+import * as yup from "yup";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import PasswordIcon from "@mui/icons-material/Password";
+import EmojiTransportationIcon from "@mui/icons-material/EmojiTransportation";
 import { toast, ToastContainer } from "react-toastify";
 import CryptoJS from "crypto-js";
 
@@ -31,9 +35,16 @@ const Users = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [permissionOptions, setPermissionOptions] = useState([]);
+  const [issuingAuthorityOptions, setIssuingAuthorityOptions] = useState([]);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
+
   const [selectedRow, setSelectedRow] = useState(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [provideAccountDialogOpen, setProvideAccountDialogOpen] =
+    useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -47,6 +58,44 @@ const Users = () => {
     totalCount: 0,
   });
   const [keyword, setKeyword] = useState(initialKeyword);
+
+  useEffect(() => {
+    fetchPermissions();
+    fetchIssuingAuthority();
+  }, []);
+
+  const fetchPermissions = async () => {
+    try {
+      const res = await api.get("v1/permission/dropdown?keyword=");
+      const result = res.data?.data || [];
+      setPermissionOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách quyền:", error);
+    }
+  };
+
+  const fetchIssuingAuthority = async () => {
+    try {
+      const res = await api.get("v1/issuingauthority/dropdown?keyword=");
+      const result = res.data?.data || [];
+      setIssuingAuthorityOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách quyền:", error);
+    }
+  };
+
+  const fetchDepartment = async (uuid) => {
+    setDepartmentOptions([]);
+    try {
+      const res = await api.get(
+        `v1/department/dropdown?issuing_authority=${uuid}`
+      );
+      const result = res.data?.data || [];
+      setDepartmentOptions(result);
+    } catch (error) {
+      console.error("Lỗi tải danh sách quyền:", error);
+    }
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -130,11 +179,75 @@ const Users = () => {
   const handleResetPasswordConfirm = () => {
     api
       .put(`/v1/user/reset-password/${selectedRow.uuid}`, {
-        password: CryptoJS.MD5(123456).toString(),
+        password: CryptoJS.MD5("123456").toString(),
       })
       .then((response) => {
         fetchData();
         setResetPasswordDialogOpen(false);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
+  const handleProvideAccountSubmit = (values) => {
+    api
+      .put(`/v1/user/provide-account/${values.id}`, {
+        username: values.username,
+        password: CryptoJS.MD5(values.password).toString(),
+      })
+      .then((response) => {
+        fetchData();
+        setProvideAccountDialogOpen(false);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
+  const handleUpdateSubmit = (values) => {
+    api
+      .put(`/v1/issuingauthority/${values.id}`, {
+        name: values.name,
+        administrativelevel_id: values.administrative_level.uuid,
+      })
+      .then((response) => {
+        fetchData();
+        setUpdateDialogOpen(false);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 2000,
@@ -210,6 +323,12 @@ const Users = () => {
       valueGetter: (params) => params.row.issuing_authority?.name || "--",
     },
     {
+      field: "department",
+      headerName: "Phòng ban",
+      flex: 1,
+      valueGetter: (params) => params.row.department?.name || "--",
+    },
+    {
       field: "actions",
       headerName: "Thao tác",
       flex: 1,
@@ -234,7 +353,12 @@ const Users = () => {
             </Tooltip>
             {!params.row.username ? (
               <Tooltip title="Cấp tài khoản cho cán bộ">
-                <IconButton>
+                <IconButton
+                  onClick={() => {
+                    setSelectedRow(params.row);
+                    setProvideAccountDialogOpen(true);
+                  }}
+                >
                   <AccountBoxIcon />
                 </IconButton>
               </Tooltip>
@@ -250,6 +374,17 @@ const Users = () => {
                 </IconButton>
               </Tooltip>
             )}
+            <Tooltip title="Điều chỉnh đơn vị công tác của cán bộ">
+              <IconButton
+                onClick={() => {
+                  setSelectedRow(params.row);
+                  fetchDepartment(params.row.issuing_authority.uuid);
+                  setUpdateDialogOpen(true);
+                }}
+              >
+                <EmojiTransportationIcon />
+              </IconButton>
+            </Tooltip>
           </>
         );
       },
@@ -466,9 +601,277 @@ const Users = () => {
         </DialogActions>
       </Dialog>
 
+      <Dialog
+        open={provideAccountDialogOpen}
+        onClose={() => {
+          setProvideAccountDialogOpen(false);
+        }}
+      >
+        <DialogTitle>Cấp tài khoản cho cán bộ</DialogTitle>
+        <Formik
+          enableReinitialize
+          onSubmit={handleProvideAccountSubmit}
+          initialValues={{
+            id: selectedRow?.uuid || "",
+            username: "",
+            password: "",
+          }}
+          validationSchema={checkoutSchemaP}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <DialogContent>
+                <TextField
+                  fullWidth
+                  variant="filled"
+                  type="text"
+                  label="Tài khoản"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.username}
+                  name="username"
+                  error={!!touched.username && !!errors.username}
+                  helperText={touched.username && errors.username}
+                  sx={{
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                    mb: 1,
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  variant="filled"
+                  type="password"
+                  label="Mật khẩu"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.password}
+                  name="password"
+                  error={!!touched.password && !!errors.password}
+                  helperText={touched.password && errors.password}
+                  sx={{
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                    mb: 1,
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  onClick={() => setProvideAccountDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  color="primary"
+                >
+                  Lưu lại
+                </Button>
+              </DialogActions>
+            </form>
+          )}
+        </Formik>
+      </Dialog>
+
+      <Dialog
+        open={updateDialogOpen}
+        onClose={() => {
+          setUpdateDialogOpen(false);
+        }}
+      >
+        <DialogTitle>Điều chỉnh công tác của cán bộ</DialogTitle>
+        <Formik
+          enableReinitialize
+          onSubmit={handleUpdateSubmit}
+          initialValues={{
+            id: selectedRow?.uuid || "",
+            permission: selectedRow?.permission || null,
+            issuing_authority: selectedRow?.issuing_authority || null,
+            department: selectedRow?.department || null,
+          }}
+          validationSchema={checkoutSchemaU}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleBlur,
+            handleSubmit,
+            setFieldValue,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <DialogContent>
+                <Autocomplete
+                  fullWidth
+                  options={permissionOptions}
+                  getOptionLabel={(option) => option?.name || ""}
+                  onChange={(_, value) => setFieldValue("permission", value)}
+                  value={values.permission}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value?.uuid
+                  }
+                  sx={{
+                    mb: 1,
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Quyền"
+                      variant="filled"
+                      onBlur={handleBlur}
+                      error={!!touched.permission && !!errors.permission}
+                      helperText={
+                        touched.permission && errors.permission
+                          ? errors.permission
+                          : ""
+                      }
+                    />
+                  )}
+                />
+                <Autocomplete
+                  fullWidth
+                  options={issuingAuthorityOptions}
+                  getOptionLabel={(option) => option?.name || ""}
+                  onChange={(_, value) => {
+                    setFieldValue("issuing_authority", value);
+                    fetchDepartment(value?.uuid);
+                  }}
+                  value={values.issuing_authority}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value?.uuid
+                  }
+                  sx={{
+                    mb: 1,
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Cơ quan ban hành"
+                      variant="filled"
+                      onBlur={handleBlur}
+                      error={
+                        !!touched.issuing_authority &&
+                        !!errors.issuing_authority
+                      }
+                      helperText={
+                        touched.issuing_authority && errors.issuing_authority
+                          ? errors.issuing_authority
+                          : ""
+                      }
+                    />
+                  )}
+                />
+                <Autocomplete
+                  fullWidth
+                  options={departmentOptions}
+                  getOptionLabel={(option) => option?.name || ""}
+                  onChange={(_, value) => setFieldValue("department", value)}
+                  value={values.department}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value?.uuid
+                  }
+                  sx={{
+                    gridColumn: "span 2",
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: colors.grey[100],
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Phòng ban"
+                      variant="filled"
+                      onBlur={handleBlur}
+                      error={!!touched.department && !!errors.department}
+                      helperText={
+                        touched.department && errors.department
+                          ? errors.department
+                          : ""
+                      }
+                    />
+                  )}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  onClick={() => setUpdateDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  sx={{
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "10px 20px",
+                  }}
+                  color="primary"
+                >
+                  Lưu lại
+                </Button>
+              </DialogActions>
+            </form>
+          )}
+        </Formik>
+      </Dialog>
+
       <ToastContainer />
     </Box>
   );
 };
+
+// Update schema
+const checkoutSchemaU = yup.object().shape({
+  id: yup.string().required("required"),
+  permission: yup.object().nullable().required("required"),
+  issuing_authority: yup.object().nullable().required("required"),
+  department: yup.object().nullable().required("required"),
+});
+
+// Provide schema
+const checkoutSchemaP = yup.object().shape({
+  id: yup.string().required("required"),
+  username: yup.string().required("required"),
+  password: yup.string().required("required"),
+});
 
 export default Users;
