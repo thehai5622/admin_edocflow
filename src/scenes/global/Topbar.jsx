@@ -87,7 +87,7 @@ const Topbar = () => {
     api
       .put(`/v1/user/change-password`, {
         current_password: CryptoJS.MD5(values.current_password).toString(),
-        password: CryptoJS.MD5(values.password).toString(),
+        password: CryptoJS.MD5(values.new_password).toString(),
       })
       .then((response) => {
         setChangePasswordDialogOpen(false);
